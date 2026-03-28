@@ -1,4 +1,4 @@
-# MediaGraph - 依赖清单
+# MediaGraph 依赖清单
 # 摄影师个人影像知识图谱系统
 
 fastapi>=0.104.0
@@ -10,10 +10,10 @@ pyyaml>=6.0.1
 loguru>=0.7.2
 httpx>=0.25.0
 
-# Neo4j
+# Neo4j 图数据库驱动
 neo4j>=5.14.0
 
-# Chroma 向量库
+# Chroma 向量数据库
 chromadb>=0.4.22
 
 # Redis（可选）

@@ -31,22 +31,21 @@ class VectorStore:
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
         
-        # Chroma客户端
+        # Chroma 客户端
         self.client = None
         self.collection = None
         
         self._connect()
     
     def _connect(self):
-        """连接Chroma"""
+        """连接 Chroma"""
         try:
             import chromadb
-            from chromadb.config import Settings
             
-            self.client = chromadb.Client(Settings(
-                persist_directory=str(self.persist_dir),
-                anonymized_telemetry=False
-            ))
+            # Chroma 1.x API: 使用 PersistentClient
+            self.client = chromadb.PersistentClient(
+                path=str(self.persist_dir)
+            )
             
             # 获取或创建集合
             self.collection = self.client.get_or_create_collection(
@@ -54,14 +53,14 @@ class VectorStore:
                 metadata={"hnsw:space": "cosine"}  # 余弦相似度
             )
             
-            logger.info(f"✅ Chroma连接成功: {self.persist_dir}")
+            logger.info(f"✅ Chroma 连接成功: {self.persist_dir}")
             
         except ImportError:
-            logger.warning("Chroma未安装，使用模拟模式")
+            logger.warning("Chroma 未安装，使用模拟模式")
             self.client = None
             self.collection = None
         except Exception as e:
-            logger.warning(f"Chroma连接失败: {e}，使用模拟模式")
+            logger.warning(f"Chroma 连接失败: {e}，使用模拟模式")
             self.client = None
             self.collection = None
     
@@ -76,7 +75,7 @@ class VectorStore:
         
         Args:
             media_id: 媒体ID
-            clip_embedding: 512维CLIP特征向量
+            clip_embedding: 512维 CLIP 特征向量
             metadata: 附加元数据
         """
         if self.collection is None:
@@ -108,7 +107,7 @@ class VectorStore:
         
         Args:
             media_id: 媒体ID
-            clip_embedding: CLIP特征向量
+            clip_embedding: CLIP 特征向量
             frame_index: 帧索引
             metadata: 附加元数据
         """
@@ -178,7 +177,7 @@ class VectorStore:
                 
                 for i, vector_id in enumerate(ids):
                     distance = distances[i] if i < len(distances) else 0
-                    similarity = 1 - distance  # cosine distance转similarity
+                    similarity = 1 - distance  # cosine distance 转 similarity
                     
                     metadata = metadatas[i] if i < len(metadatas) else {}
                     
@@ -285,7 +284,7 @@ class VectorStore:
             return
         
         try:
-            # 删除该media_id的所有向量
+            # 删除该 media_id 的所有向量
             self.collection.delete(where={"media_id": media_id})
         except Exception as e:
             logger.error(f"删除向量失败: {e}")
@@ -322,22 +321,17 @@ class VectorStore:
             return None
     
     def _mock_search(self, query: str, top_k: int) -> List[Dict]:
-        """模拟搜索（Chroma不可用时）"""
-        # 返回空结果或随机结果
+        """模拟搜索（Chroma 不可用时）"""
         return []
     
     def save(self):
         """持久化存储"""
-        if self.client is not None:
-            try:
-                self.client.persist()
-                logger.info("向量存储已持久化")
-            except Exception as e:
-                logger.error(f"持久化失败: {e}")
+        # Chroma 1.x PersistentClient 自动持久化
+        logger.info("向量存储已保存")
     
     def reset(self):
         """重置存储"""
-        if self.collection is not None:
+        if self.client is not None:
             try:
                 self.client.delete_collection("media_embeddings")
                 self.collection = self.client.get_or_create_collection(

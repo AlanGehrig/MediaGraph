@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaGraph - 影像知识图谱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #e94560, #f5a623);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo span {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        /* Search Bar */
+        .search-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #e94560;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #f5a623);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233,69,96,0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .search-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .suggestion {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e94560;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 12px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .tab.active {
+            background: rgba(233,69,96,0.2);
+            color: #e94560;
+        }
+        
+        /* Media Grid */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .media-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .media-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        
+        .media-thumb {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .media-info {
+            padding: 16px;
+        }
+        
+        .media-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .media-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .media-tag {
+            padding: 3px 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .media-tag.scene {
+            background: rgba(46,213,115,0.2);
+            color: #2ed573;
+        }
+        
+        .media-tag.mood {
+            background: rgba(255,169,64,0.2);
+            color: #ffa940;
+        }
+        
+        .media-tag.lighting {
+            background: rgba(91,144,248,0.2);
+            color: #5b90f8;
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        /* Sidebar */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .person-list {
+            list-style: none;
+        }
+        
+        .person-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .person-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .person-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560, #f5a623);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .person-name {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .person-count {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+        
+        /* Search Results */
+        .search-results {
+            margin-top: 20px;
+        }
+        
+        .result-count {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 16px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🎬</span>
+                <div>
+                    <h1>MediaGraph</h1>
+                    <span>摄影师个人影像知识图谱</span>
+                </div>
+            </div>
+            <div>
+                <span id="status" style="font-size: 13px; color: rgba(255,255,255,0.5);">
+                    检查连接状态...
+                </span>
+            </div>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" 
+                       placeholder="输入自然语言搜索，如：去年夏天的海边照片、逆光人像">
+                <button class="btn btn-primary" onclick="performSearch()">🔍 搜索</button>
+                <button class="btn btn-secondary" onclick="scanMedia()">📁 扫描</button>
+            </div>
+            <div class="search-suggestions">
+                <span class="suggestion" onclick="searchSuggestion('海边照片')">🌊 海边照片</span>
+                <span class="suggestion" onclick="searchSuggestion('逆光人像')">🌅 逆光人像</span>
+                <span class="suggestion" onclick="searchSuggestion('城市夜景')">🌃 城市夜景</span>
+                <span class="suggestion" onclick="searchSuggestion('室内场景')">🏠 室内场景</span>
+                <span class="suggestion" onclick="searchSuggestion('开心的人')">😊 开心的人</span>
+                <span class="suggestion" onclick="searchSuggestion('黄金时刻')">✨ 黄金时刻</span>
+            </div>
+        </section>
+        
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalMedia">-</div>
+                <div class="stat-label">媒体总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalImages">-</div>
+                <div class="stat-label">图片</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalVideos">-</div>
+                <div class="stat-label">视频</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPersons">-</div>
+                <div class="stat-label">人物</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalFaces">-</div>
+                <div class="stat-label">人脸样本</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="storageSize">-</div>
+                <div class="stat-label">存储大小(GB)</div>
+            </div>
+        </section>
+        
+        <div class="layout">
+            <aside class="sidebar">
+                <h3 class="sidebar-title">👥 人物</h3>
+                <ul class="person-list" id="personList">
+                    <li class="person-item">
+                        <div class="person-avatar">?</div>
+                        <span class="person-name">加载中...</span>
+                        <span class="person-count">-</span>
+                    </li>
+                </ul>
+            </aside>
+            
+            <main>
+                <div class="tabs">
+                    <button class="tab active" data-tab="media">📁 素材库</button>
+                    <button class="tab" data-tab="search">🔍 搜索结果</button>
+                    <button class="tab" data-tab="persons">👤 人物</button>
+                    <button class="tab" data-tab="timeline">📅 时间线</button>
+                </div>
+                
+                <div id="mediaContent">
+                    <div class="search-results" id="searchResults" style="display:none;">
+                        <div class="result-count" id="resultCount"></div>
+                    </div>
+                    <div class="media-grid" id="mediaGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">📷</div>
+                            <p>点击"扫描"按钮开始管理你的素材库</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        
+        // 检查连接状态
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                const statusEl = document.getElementById('status');
+                
+                if (data.status === 'healthy') {
+                    statusEl.innerHTML = '✅ 服务正常 | Neo4j: ' + data.neo4j + ' | Chroma: ' + data.chroma;
+                    statusEl.style.color = '#2ed573';
+                } else {
+                    statusEl.innerHTML = '⚠️ 服务降级';
+                    statusEl.style.color = '#ffa940';
+                }
+            } catch (e) {
+                document.getElementById('status').innerHTML = '❌ 服务离线';
+                document.getElementById('status').style.color = '#ff4757';
+            }
+        }
+        
+        // 加载统计
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats/overview`);
+                const data = await res.json();
+                
+                document.getElementById('totalMedia').textContent = data.total_media || 0;
+                document.getElementById('totalImages').textContent = data.total_images || 0;
+                document.getElementById('totalVideos').textContent = data.total_videos || 0;
+                document.getElementById('totalPersons').textContent = data.total_persons || 0;
+                document.getElementById('totalFaces').textContent = data.total_faces || 0;
+                document.getElementById('storageSize').textContent = (data.storage_size_gb || 0).toFixed(1);
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        }
+        
+        // 加载人物列表
+        async function loadPersons() {
+            try {
+                const res = await fetch(`${API_BASE}/graph/persons?min_media_count=1`);
+                const data = await res.json();
+                
+                const list = document.getElementById('personList');
+                if (data.persons && data.persons.length > 0) {
+                    list.innerHTML = data.persons.map(p => `
+                        <li class="person-item" onclick="filterByPerson('${p.id}')">
+                            <div class="person-avatar">${p.name ? p.name[0].toUpperCase() : '?'}</div>
+                            <span class="person-name">${p.name || '未知人物'}</span>
+                            <span class="person-count">${p.media_count || 0}</span>
+                        </li>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<li class="person-item"><span class="person-name">暂无人物数据</span></li>';
+                }
+            } catch (e) {
+                console.error('加载人物失败:', e);
+            }
+        }
+        
+        // 加载媒体列表
+        async function loadMedia() {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/media/list?page=1&page_size=50`);
+                const data = await res.json();
+                
+                if (data.items && data.items.length > 0) {
+                    grid.innerHTML = data.items.map(m => createMediaCard(m)).join('');
+                } else {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📷</div>
+                            <p>暂无素材，请先扫描素材目录</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                grid.innerHTML = '<div class="empty-state"><p>加载失败，请检查服务状态</p></div>';
+            }
+        }
+        
+        // 创建媒体卡片
+        function createMediaCard(media) {
+            const parseResult = media.parse_result || {};
+            return `
+                <div class="media-card" onclick="showMediaDetail('${media.id}')">
+                    <div class="media-thumb">
+                        ${media.thumbnail ? `<img src="${media.thumbnail}" alt="">` : '📷'}
+                    </div>
+                    <div class="media-info">
+                        <div class="media-name">${media.filename}</div>
+                        <div class="media-meta">
+                            ${parseResult.scene ? `<span class="media-tag scene">${parseResult.scene}</span>` : ''}
+                            ${parseResult.mood ? `<span class="media-tag mood">${parseResult.mood}</span>` : ''}
+                            ${parseResult.lighting ? `<span class="media-tag lighting">${parseResult.lighting}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 搜索
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            
+            const grid = document.getElementById('mediaGrid');
+            const searchResults = document.getElementById('searchResults');
+            const resultCount = document.getElementById('resultCount');
+            
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div>搜索中...</div>';
+            searchResults.style.display = 'block';
+            resultCount.textContent = `正在搜索: "${query}"...`;
+            
+            try {
+                const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&top_k=50`);
+                const data = await res.json();
+                
+                resultCount.textContent = `找到 ${data.total} 个结果 (${data.time_ms}ms)`;
+                
+                if (data.results && data.results.length > 0) {
+                    grid.innerHTML = data.results.map(r => `
+                        <div class="media-card">
+                            <div class="media-thumb">📷</div>
+                            <div class="media-info">
+                                <div class="media-name">${r.filename}</div>
+                                <div class="media-meta">
+                                    <span class="media-tag">相似度: ${(r.similarity * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>未找到匹配结果</p></div>';
+                }
+            } catch (e) {
+                grid.innerHTML = '<div class="empty-state"><p>搜索失败</p></div>';
+            }
+        }
+        
+        // 扫描素材
+        async function scanMedia() {
+            if (!confirm('确定要扫描素材目录吗？这可能需要一些时间。')) return;
+            
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = '<div class="loading"><div class="spinner"></div>正在扫描...</div>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/media/scan`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({paths: [], recursive: true})
+                });
+                const data = await res.json();
+                
+                alert(`扫描完成！\\n新增: ${data.new_added} 个\\n总计: ${data.total_in_db} 个`);
+                
+                // 刷新
+                loadMedia();
+                loadStats();
+            } catch (e) {
+                alert('扫描失败: ' + e.message);
+            }
+        }
+        
+        // 搜索建议
+        function searchSuggestion(text) {
+            document.getElementById('searchInput').value = text;
+            performSearch();
+        }
+        
+        // 按人物筛选
+        function filterByPerson(personId) {
+            document.getElementById('searchInput').value = 'has person';
+            performSearch();
+        }
+        
+        // Tab 切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+        
+        // 搜索回车
+        document.getElementById('searchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') performSearch();
+        });
+        
+        // 初始化
+        checkHealth();
+        loadStats();
+        loadPersons();
+        loadMedia();
+        
+        // 定期检查
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>

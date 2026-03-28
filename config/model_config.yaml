@@ -1,0 +1,89 @@
+# AI 模型配置
+
+# CLIP 多模态模型
+clip:
+  model_name: ViT-L/14
+  model_path: models/clip
+  device: cpu  # cuda 或 cpu
+  batch_size: 8
+  
+  # 预定义的分类标签
+  scene_labels:
+    - beach
+    - mountain
+    - forest
+    - city
+    - indoor
+    - outdoor
+    - studio
+    - street
+    - park
+    - sky
+    - sunset
+    - night
+  
+  mood_labels:
+    - happy
+    - sad
+    - romantic
+    - dramatic
+    - peaceful
+    - energetic
+    - nostalgic
+  
+  lighting_labels:
+    - natural
+    - soft
+    - hard
+    - backlight
+    - golden_hour
+    - blue_hour
+    - low_light
+    - dramatic
+  
+  composition_labels:
+    - centered
+    - rule_of_thirds
+    - symmetrical
+    - close_up
+    - wide_shot
+    - portrait
+
+# InsightFace 人脸识别模型
+insightface:
+  model_path: models/insightface
+  device: cpu
+  
+  # 人脸检测器
+  detector: retinaface  # retinaface, scrfd, yolov8face
+  
+  # 人脸识别器
+  recognizer: arcface
+  
+  # 检测参数
+  det_size: [640, 640]
+  max_face_num: 10
+  
+  # 聚类参数
+  cluster_threshold: 0.6
+  min_face_samples: 1
+
+# 视频处理配置
+video:
+  # 关键帧采样率 (帧/秒)
+  fps: 1
+  
+  # 关键帧数量上限
+  max_keyframes: 60
+  
+  # 缩略图尺寸
+  thumbnail_size: [320, 180]
+  
+  # 支持的格式
+  formats:
+    - mp4
+    - mov
+    - avi
+    - mkv
+    - wmv
+    - m4v

@@ -1,0 +1,22 @@
+# Neo4j 数据库连接配置
+
+# 连接信息
+uri: bolt://localhost:7687
+user: neo4j
+password: password123
+
+# 连接池配置
+max_connection_pool_size: 50
+connection_acquisition_timeout: 60
+
+# 查询超时 (秒)
+query_timeout: 30
+
+# 事务配置
+default_transaction_timeout: 30
+
+# 重连配置
+max_retry_time: 30
+
+# 数据库名称
+database: neo4j

@@ -1,72 +1,46 @@
 # MediaGraph - 依赖清单
 # 摄影师个人影像知识图谱系统
 
-# ==================== 核心依赖 ====================
-
-# Web框架
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 starlette>=0.27.0
-
-# 数据验证
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
-
-# 配置管理
 pyyaml>=6.0.1
-
-# 日志
 loguru>=0.7.2
-
-# HTTP客户端
 httpx>=0.25.0
-
-# ==================== 数据库 ====================
 
 # Neo4j
 neo4j>=5.14.0
 
-# Chroma 向量数据库
+# Chroma 向量库
 chromadb>=0.4.22
 
-# Redis (可选，用于任务队列)
+# Redis（可选）
 redis>=5.0.0
 
-# ==================== AI/ML ====================
-
-# CLIP (OpenAI)
-clip @ git+https://github.com/openai/CLIP.git
-
-# InsightFace
-insightface>=0.7.3
-
-# PyTorch (根据系统选择版本)
-# CPU版本 (Windows推荐)
+# PyTorch（CPU版，Windows推荐）
 torch>=2.0.0
 torchvision>=0.15.0
 
-# GPU版本 (Linux/Mac, 需要CUDA)
-# torch>=2.0.0+cu118
-# torchvision>=0.15.0+cu118
+# CLIP（用于图像理解）
+git+https://github.com/openai/CLIP.git
 
-# ==================== 图像处理 ====================
+# InsightFace（用于人脸检测）
+insightface>=0.7.3
 
+# 图像处理
 pillow>=10.1.0
 opencv-python>=4.8.0
-Pillow>=10.0.0
 imageio>=2.31.0
 
-# ==================== 视频处理 ====================
-
+# 视频处理
 av>=10.0.0
 moviepy>=1.0.3
 
-# ==================== 数据处理 ====================
-
+# 数据处理
 numpy>=1.24.0
 pandas>=2.1.0
-
-# ==================== 开发工具 ====================
 
 # 测试
 pytest>=7.4.0
@@ -76,34 +50,18 @@ pytest-cov>=4.1.0
 # 代码质量
 black>=23.11.0
 ruff>=0.1.0
-mypy>=1.7.0
-
-# 类型扩展
-types-Pillow>=10.0.0
-types-PyYAML>=6.0.0
-types-redis>=4.6.0
-
-# ==================== 可选依赖 ====================
-
-# 任务队列
-rq>=1.15.0
-
-# 缓存
-cachetools>=5.3.0
-
-# 日期时间
-python-dateutil>=2.8.2
 
 # EXIF读取
-exifread>=3.0.0
+exif>=3.0.0
 
 # 进度条
 tqdm>=4.66.0
 
-# 分词 (用于中文搜索)
+# 中文分词
 jieba>=0.42.1
 
-# ==================== Windows特定 ====================
+# 日期时间
+python-dateutil>=2.8.2
 
-# Windows下可能需要
+# Windows特定
 pywin32>=306; platform_system=="Windows"
